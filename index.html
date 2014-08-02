@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns = "http://www.w3.org/1999/xhtml">
+<head>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <!-- midi.js package -->
+ <script src="./js/MIDI/AudioDetect.js" type="text/javascript"></script>
+ <script src="./js/MIDI/LoadPlugin.js" type="text/javascript"></script>
+ <script src="./js/MIDI/Plugin.js" type="text/javascript"></script>
+ <script src="./js/MIDI/Player.js" type="text/javascript"></script>
+ <script src="./js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
+ <!-- extras -->
+ <script src="./inc/Base64.js" type="text/javascript"></script>
+ <script src="./inc/base64binary.js" type="text/javascript"></script>
+</head>
+<body>
+
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="http://dglittle.github.io/gl519/index.js"></script>
+<script src="http://dglittle.github.io/gl519/random.js"></script>
+<script src="utils.js"></script>
+
+<script type="text/javascript">
+
+function drawMain() {
+	$('body').css('background', 'grey')
+
+	var white_note_offsets = [0, 2, 4, 5, 7, 9, 11]
+	var rows = [
+		[49, 50, 51, 52, 53, 54, 55, 56, 57, 48, 189, 187],
+		[81, 87, 69, 82, 84, 89, 85, 73, 79, 80, 219, 221, 220],
+		[65, 83, 68, 70, 71, 72, 74, 75, 76, 186, 222, 13],
+		[90, 88, 67, 86, 66, 78, 77, 188, 190, 191, 16]
+	]
+	var downs = {}
+	$('body').on('keyup', function (e) {
+		downs[e.keyCode] = false
+	})
+	$('body').on('keydown', function (e) {
+		if (downs[e.keyCode]) return
+		downs[e.keyCode] = true
+		_.each(rows, function (row, row_i) {
+			var i = row.indexOf(e.keyCode)
+			if (i >= 0) {
+				var note = 60 + (-row_i + 1)*12 + Math.floor(i/7)*12 + white_note_offsets[i%7]
+				MIDI.noteOn(0, note, 127, 0)
+				MIDI.noteOff(0, note, 0 + 0.75)
+			}
+		})
+	})
+
+}
+
+$(function () {
+	MIDI.loadPlugin({
+		soundfontUrl : "./soundfont/",
+		instrument : "acoustic_grand_piano",
+		callback : function() {
+			MIDI.setVolume(0, 127);
+			drawMain()
+		}
+	});
+})
+
+</script>
+</body>
+</html>
